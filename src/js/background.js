@@ -6,6 +6,30 @@
  * http://github.com/greatsuspender/thegreatsuspender
  * ༼ つ ◕_◕ ༽つ
 */
+
+
+
+try {
+  importScripts(
+    'gsUtils.js',
+    'gsChrome.js',
+    'gsStorage.js',
+    'db.js',
+    'gsIndexedDb.js',
+    'gsMessages.js',
+    'gsSession.js',
+    'gsTabQueue.js',
+    'gsTabCheckManager.js',
+    'gsFavicon.js',
+    'gsTabSuspendManager.js',
+    'gsTabDiscardManager.js',
+    'gsSuspendedTab.js'
+  );
+}
+catch (e) {
+  console.error(e);
+}
+
 var tgs = (function() {
   // eslint-disable-line no-unused-vars
   'use strict';
@@ -93,12 +117,12 @@ var tgs = (function() {
       if (isReady) {
         return Promise.resolve();
       }
-      return new Promise(function(resolve) {
-        window.setTimeout(resolve, 100);
-      }).then(function() {
-        retries += 1;
-        return backgroundScriptsReadyAsPromised(retries);
-      });
+      // return new Promise(function(resolve) {
+      //   window.setTimeout(resolve, 100);
+      // }).then(function() {
+      //   retries += 1;
+      //   return backgroundScriptsReadyAsPromised(retries);
+      // });
     });
   }
 
@@ -1412,95 +1436,112 @@ var tgs = (function() {
     if (!showContextMenu) {
       chrome.contextMenus.removeAll();
     } else {
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_context_open_link_in_suspended_tab'),
-        contexts: ['link'],
-        onclick: (info, tab) => {
-          openLinkInSuspendedTab(tab, info.linkUrl);
-        },
-      });
+      // TODO: manifest v3 - fix context menu
+    //   chrome.contextMenus.create({
+    //     id: 'js_context_open_link_in_suspended_tab',
+    //     title: chrome.i18n.getMessage('js_context_open_link_in_suspended_tab'),
+    //     contexts: ['link'],
+    //     onclick: (info, tab) => {
+    //       openLinkInSuspendedTab(tab, info.linkUrl);
+    //     },
+    //   });
 
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_context_toggle_suspend_state'),
-        contexts: allContexts,
-        onclick: () => toggleSuspendedStateOfHighlightedTab(),
-      });
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_context_toggle_pause_suspension'),
-        contexts: allContexts,
-        onclick: () => requestToggleTempWhitelistStateOfHighlightedTab(),
-      });
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_context_never_suspend_page'),
-        contexts: allContexts,
-        onclick: () => whitelistHighlightedTab(true),
-      });
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_context_never_suspend_domain'),
-        contexts: allContexts,
-        onclick: () => whitelistHighlightedTab(false),
-      });
+    //   chrome.contextMenus.create({
+    //     id: 'js_context_toggle_suspend_state',
+    //     title: chrome.i18n.getMessage('js_context_toggle_suspend_state'),
+    //     contexts: allContexts,
+    //     onclick: () => toggleSuspendedStateOfHighlightedTab(),
+    //   });
+    //   chrome.contextMenus.create({
+    //     id: 'js_context_toggle_pause_suspension',
+    //     title: chrome.i18n.getMessage('js_context_toggle_pause_suspension'),
+    //     contexts: allContexts,
+    //     onclick: () => requestToggleTempWhitelistStateOfHighlightedTab(),
+    //   });
+    //   chrome.contextMenus.create({
+    //     id: 'js_context_never_suspend_page',
+    //     title: chrome.i18n.getMessage('js_context_never_suspend_page'),
+    //     contexts: allContexts,
+    //     onclick: () => whitelistHighlightedTab(true),
+    //   });
+    //   chrome.contextMenus.create({
+    //     id: 'js_context_never_suspend_domain',
+    //     title: chrome.i18n.getMessage('js_context_never_suspend_domain'),
+    //     contexts: allContexts,
+    //     onclick: () => whitelistHighlightedTab(false),
+    //   });
 
-      chrome.contextMenus.create({
-        type: 'separator',
-        contexts: allContexts,
-      });
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_context_suspend_selected_tabs'),
-        contexts: allContexts,
-        onclick: () => suspendSelectedTabs(),
-      });
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_context_unsuspend_selected_tabs'),
-        contexts: allContexts,
-        onclick: () => unsuspendSelectedTabs(),
-      });
+    //   chrome.contextMenus.create({
+    //     id: 'separator-1',
+    //     type: 'separator',
+    //     contexts: allContexts,
+    //   });
+    //   chrome.contextMenus.create({
+    //     id: 'js_context_suspend_selected_tabs',
+    //     title: chrome.i18n.getMessage('js_context_suspend_selected_tabs'),
+    //     contexts: allContexts,
+    //     onclick: () => suspendSelectedTabs(),
+    //   });
+    //   chrome.contextMenus.create({
+    //     id: 'js_context_unsuspend_selected_tabs',
+    //     title: chrome.i18n.getMessage('js_context_unsuspend_selected_tabs'),
+    //     contexts: allContexts,
+    //     onclick: () => unsuspendSelectedTabs(),
+    //   });
 
-      chrome.contextMenus.create({
-        type: 'separator',
-        contexts: allContexts,
-      });
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage(
-          'js_context_soft_suspend_other_tabs_in_window',
-        ),
-        contexts: allContexts,
-        onclick: () => suspendAllTabs(false),
-      });
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage(
-          'js_context_force_suspend_other_tabs_in_window',
-        ),
-        contexts: allContexts,
-        onclick: () => suspendAllTabs(true),
-      });
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage(
-          'js_context_unsuspend_all_tabs_in_window',
-        ),
-        contexts: allContexts,
-        onclick: () => unsuspendAllTabs(),
-      });
+    //   chrome.contextMenus.create({
+    //     id: 'separator-2',
+    //     type: 'separator',
+    //     contexts: allContexts,
+    //   });
+    //   chrome.contextMenus.create({
+    //     id: 'js_context_soft_suspend_other_tabs_in_window',
+    //     title: chrome.i18n.getMessage(
+    //       'js_context_soft_suspend_other_tabs_in_window',
+    //     ),
+    //     contexts: allContexts,
+    //     onclick: () => suspendAllTabs(false),
+    //   });
+    //   chrome.contextMenus.create({
+    //     id: 'js_context_force_suspend_other_tabs_in_window',
+    //     title: chrome.i18n.getMessage(
+    //       'js_context_force_suspend_other_tabs_in_window',
+    //     ),
+    //     contexts: allContexts,
+    //     onclick: () => suspendAllTabs(true),
+    //   });
+    //   chrome.contextMenus.create({
+    //     id: 'js_context_unsuspend_all_tabs_in_window',
+    //     title: chrome.i18n.getMessage(
+    //       'js_context_unsuspend_all_tabs_in_window',
+    //     ),
+    //     contexts: allContexts,
+    //     onclick: () => unsuspendAllTabs(),
+    //   });
 
-      chrome.contextMenus.create({
-        type: 'separator',
-        contexts: allContexts,
-      });
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_context_soft_suspend_all_tabs'),
-        contexts: allContexts,
-        onclick: () => suspendAllTabsInAllWindows(false),
-      });
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_context_force_suspend_all_tabs'),
-        contexts: allContexts,
-        onclick: () => suspendAllTabsInAllWindows(true),
-      });
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_context_unsuspend_all_tabs'),
-        contexts: allContexts,
-        onclick: () => unsuspendAllTabsInAllWindows(),
-      });
+    //   chrome.contextMenus.create({
+    //     id: 'separator-3',
+    //     type: 'separator',
+    //     contexts: allContexts,
+    //   });
+    //   chrome.contextMenus.create({
+    //     id: 'js_context_soft_suspend_all_tabs',
+    //     title: chrome.i18n.getMessage('js_context_soft_suspend_all_tabs'),
+    //     contexts: allContexts,
+    //     onclick: () => suspendAllTabsInAllWindows(false),
+    //   });
+    //   chrome.contextMenus.create({
+    //     id: 'js_context_force_suspend_all_tabs',
+    //     title: chrome.i18n.getMessage('js_context_force_suspend_all_tabs'),
+    //     contexts: allContexts,
+    //     onclick: () => suspendAllTabsInAllWindows(true),
+    //   });
+    //   chrome.contextMenus.create({
+    //     id: 'js_context_unsuspend_all_tabs',
+    //     title: chrome.i18n.getMessage('js_context_unsuspend_all_tabs'),
+    //     contexts: allContexts,
+    //     onclick: () => unsuspendAllTabsInAllWindows(),
+    //   });
     }
   }
 
@@ -1763,19 +1804,19 @@ var tgs = (function() {
     }
 
     //add listeners for online/offline state changes
-    window.addEventListener('online', function() {
-      gsUtils.log('background', 'Internet is online.');
-      //restart timer on all normal tabs
-      //NOTE: some tabs may have been prevented from suspending when internet was offline
-      if (gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE)) {
-        resetAutoSuspendTimerForAllTabs();
-      }
-      setIconStatusForActiveTab();
-    });
-    window.addEventListener('offline', function() {
-      gsUtils.log('background', 'Internet is offline.');
-      setIconStatusForActiveTab();
-    });
+    // window.addEventListener('online', function() {
+    //   gsUtils.log('background', 'Internet is online.');
+    //   //restart timer on all normal tabs
+    //   //NOTE: some tabs may have been prevented from suspending when internet was offline
+    //   if (gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE)) {
+    //     resetAutoSuspendTimerForAllTabs();
+    //   }
+    //   setIconStatusForActiveTab();
+    // });
+    // window.addEventListener('offline', function() {
+    //   gsUtils.log('background', 'Internet is offline.');
+    //   setIconStatusForActiveTab();
+    // });
   }
 
   return {
